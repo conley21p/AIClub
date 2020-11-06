@@ -1,26 +1,19 @@
-# -*- coding: utf-8 -*-
 """
 Created on Mon Sep  7 17:54:41 2020
-
 @author: conle
 """
 import random
-#import math
-#[0,4,7,5,2,6,1,3]
 
 population = 400
 main = []
 answer = False
 generations = 0
-#fitnessList = []
 vals = []
 test =[0,4,7,5,2,6,1,3]
 result =[]
 
-
-
+#Find the fitness of board and or if its correct
 def fitness(array):
-    #fitnessList = []
     for p in range(population):
         fitness = 0
         for r in range(0,8):
@@ -38,12 +31,10 @@ def fitness(array):
             print()
             print("Answerrrrrrrrrrrrrrrrrrr!!!!!!!!!!!!")
             print()
-            #result *= array[p]
             print(array[p])
             return True
 
-
-                
+#Method make sures a array has all seperate value 0-7          
 def randomEight(array,count):
     rando = random.randint(0,7)
     if count != 0:
@@ -52,7 +43,7 @@ def randomEight(array,count):
                 return randomEight(array,count)
     return rando
     
-
+#Create intial population of boards
 for i in range(population):
     temp =[]
     count = 0
@@ -60,13 +51,11 @@ for i in range(population):
         temp.append(randomEight(temp,count))
         count += 1
     main.append(temp)
-#print(main)
 answer = fitness(main)
 
+#Main loop that evolves the boards randomly within each other till answer is found
 while answer != True:
     mutations = 0
-    #print(main[0])
-    
     if(answer ==True):
         break
     kids= []
@@ -82,26 +71,13 @@ while answer != True:
         if(random.randint(0,100)<20):
             child[random.randint(0,7)] = random.randint(0,7)
             mutations += 1
-        #child = noSameRow(child)
         kids.append(child)
-        #kids.append([0,4,7,5,2,6,1,3])
     if(answer ==True):
         break
     generations += 1
     main= kids
     answer = fitness(main)
-    #print(generations)
-    #print("Gnerationnnnnnn: ", generations)
 
-   
-   #print("mutations: ", mutations)  
+#Output the generation took to find answer
 print("it took ", generations, " Generations")
 
-
-
-def noSameRow(child):
-    for a in range(0,7):
-        for b in range(7,0):
-            if(a == b):
-                child[b]= randomEight(child,8)
-    return child
