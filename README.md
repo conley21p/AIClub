@@ -12,5 +12,5 @@ The face mask detection program
   - The system will output the accuracy of the test for the model and loss
   
   Future upgrades:
-  -Have the program find face then see if there is a mask or not
-  -Implement computer camera to detect face.
+  - Have the program find face then see if there is a mask or not
+  - Implement computer camera to detect face.
