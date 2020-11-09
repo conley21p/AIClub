@@ -1,6 +1,9 @@
 """
 Created on Mon Sep  7 17:54:41 2020
 @author: conle
+Goal: Program will solve the 8 queens chess problem by random evolution of the population
+The 8 queens problem is trying to find a state of a chess board where if there were 8 queens
+on the board none of the queens could attack the other
 """
 import random
 
