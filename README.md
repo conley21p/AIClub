@@ -1,6 +1,8 @@
 # AIClub
 This are projects that I have finished from my AI Club
 
+AI Clubs GitHub link -->https://github.com/Kbfrancq/AI_Club_20-21/
+
 The 8QueensWorking2 is a script that solves the 8 queens problem.
   - First it will generate random starting boards then do random mutations till it finds a solution
   - The solutions are given in a array of 8 integers
