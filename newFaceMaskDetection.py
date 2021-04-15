@@ -8,16 +8,10 @@ Created on Tue Mar 16 19:50:23 2021
 
 @author: conle
 """
-
-# import the necessary packages
+import tensorflow.keras as keras
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.layers import AveragePooling2D
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -26,10 +20,18 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+
 #from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+
+#data set paths
+PATH =  "C:/Users/conle/Documents/AiClub/AIClub"
+CATEG = ["jpgMask", "jpgFace"]
+
+#Define shape 50 x50
+SIZE = 250
 
 # initialize the initial learning rate, number of epochs to train for,
 # and batch size
@@ -37,21 +39,14 @@ INIT_LR = 1e-4
 EPOCHS = 20
 BS = 32
 
-DIRECTORY =  "C:/Users/conle/Documents/AiClub/AIClub"
-CATEGORIES = ["jpgMask", "jpgFace"]
-
-SIZE = 250
-
-# grab the list of images in our dataset directory, then initialize
-# the list of data (i.e., images) and class images
-print("[INFO] loading images...")
-
 data = []
-labels = []
+labels= []
 
-for category in CATEGORIES:
+#Normalize data
+#create training data method
+for category in CATEG:
     #combine the main directory path with specific data folder
-    path = os.path.join(DIRECTORY, category)
+    path = os.path.join(PATH, category)
     #iterate through all images in the folder
     for img in os.listdir(path):
     	img_path = os.path.join(path, img)
@@ -66,6 +61,11 @@ for category in CATEGORIES:
         #with mask 0 and without 1
     	labels.append(category)
 
+
+
+
+
+#one hot encoding on the labels
 # perform one-hot encoding on the labels  dont thinkg this is necessary
 lb = LabelBinarizer()
 labels = lb.fit_transform(labels)
@@ -74,11 +74,17 @@ labels = to_categorical(labels)
 data = np.array(data, dtype="float32")
 labels = np.array(labels)
 
-#this seperates the data randomly into test and train data
+#take data out of training data and make test data
+
+print("spilt trianing data ")
 (trainX, testX, trainY, testY) = train_test_split(data, labels,
 	test_size=0.20, stratify=labels, random_state=42)
+#print(len(trainX, " ", testX, " ", trainY, " ", testY))
+print("shuffle training data")
 
-#-------  end of data pre-processing  --------
+#shuffle the list of data
+#np.random.shuffle(training_data)
+#np.random.shuffle(test)
 
 
 # construct the training image generator for data augmentation
@@ -92,40 +98,25 @@ aug = ImageDataGenerator(
 	horizontal_flip=True,
 	fill_mode="nearest")
 
-
-"""Mobile nets will generate two types of models
-Type 1: head model
-    whos output will be basing into     
-
-Type 2:Base model
-    made for image networks (weights = "imagenet")
-    """
-
-
-
-# load the MobileNetV2 network, ensuring the head FC layer sets are
-# left off
+#// build model
+print("building model")
 baseModel = MobileNetV2(weights="imagenet", include_top=False,
 	input_tensor=Input(shape=(SIZE, SIZE, 3)))
                     #3 because RGB
 
-# construct the head of the model that will be placed on top of the
-# the base model
-#passing the basemodel output as first parameter
-headModel = baseModel.output
-headModel = AveragePooling2D(pool_size=(7, 7))(headModel)
-headModel = Flatten(name="flatten")(headModel)
-#relu is used for non-linear use cases (for images)
-headModel = Dense(128, activation="relu")(headModel)
-#Dropout-->avoid overfitting
-headModel = Dropout(0.5)(headModel)
-#2 because there are two options, softmax for binary answer as well
-headModel = Dense(2, activation="softmax")(headModel)
+model = keras.Sequential(); 
 
-# place the head FC model on top of the base model (this will become
-# the actual model we will train)
-#accepts input and output,   
-model = Model(inputs=baseModel.input, outputs=headModel)
+model.add(baseModel)
+
+model.add(keras.layers.AveragePooling2D(pool_size=(7,7)))
+
+model.add(keras.layers.Flatten())
+#relu is used for non-linear use cases (for images)
+model.add(keras.layers.Dense(128, activation='relu'))
+#Dropout-->avoid overfitting
+model.add(keras.layers.Dropout(.5))
+#2 because there are two options, softmax for binary answer as well
+model.add(keras.layers.Dense(2, activation='softmax'))
 
 # loop over all layers in the base model and freeze them so they will
 # *not* be updated during the first training process
@@ -164,8 +155,8 @@ print(classification_report(testY.argmax(axis=1), predIdxs,
 
 # save the model for later uses in other programs
 print("[INFO] saving mask detector model...")
-model.save("mask_detector.model", save_format="h5")
-
+model.save("detector.model", save_format="h5")
+model.save('modl.h5')
 # plot the training loss and accuracy
 N = EPOCHS
 plt.style.use("ggplot")
